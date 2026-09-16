@@ -1,3 +1,4 @@
+
 package com.isx3i.nitrokill.util;
 
 import android.graphics.Bitmap;
@@ -11,81 +12,43 @@ import java.util.Locale;
 
 public final class IconTextGenerator {
 
-    /*
-     * مساحة رسم كبيرة جدًا.
-     *
-     * Android قد يصغر الأيقونة عند عرضها
-     * في شريط الحالة، لكن هذه القيمة تعطي
-     * النص أكبر مساحة ممكنة للرسم.
-     */
-    private static final int SIZE = 512;
+    private static final int SIZE = 128;
 
-    /*
-     * تمديد رأسي قوي.
-     */
+    // التمديد الرأسي: 30%
     private static final float VERTICAL_SCALE = 1.30f;
 
-    /*
-     * تنحيف أفقي حتى لا تصبح الأرقام عريضة.
-     */
-    private static final float HORIZONTAL_SCALE = 0.70f;
+    // التنحيف الأفقي: 25%
+    private static final float HORIZONTAL_SCALE = 0.75f;
 
-    /*
-     * اللون الأبيض.
-     */
+    // سماوي نيون
     private static final int INDICATOR_COLOR =
-            Color.WHITE;
-
-    /*
-     * هامش أمان صغير جدًا.
-     */
-    private static final float SAFE_MARGIN =
-            SIZE * 0.025f;
+            Color.rgb(0, 220, 255);
 
     private IconTextGenerator() {
     }
 
     public static Icon forSpeed(long bytesPerSecond) {
-
-        String[] label =
-                shortLabel(bytesPerSecond);
-
-        return render(
-                label[0],
-                label[1]
-        );
+        String[] label = shortLabel(bytesPerSecond);
+        return render(label[0], label[1]);
     }
 
-    /*
-     * تحويل السرعة إلى قيمة مختصرة.
-     */
-    private static String[] shortLabel(
-            long bytesPerSecond
-    ) {
+    private static String[] shortLabel(long bytesPerSecond) {
 
-        double kbps =
-                bytesPerSecond / 1024.0;
+        double kbps = bytesPerSecond / 1024.0;
 
         if (kbps < 1.0) {
-
             return new String[]{
                     "0",
                     "KB/s"
             };
 
         } else if (kbps < 1000.0) {
-
             return new String[]{
-                    String.format(
-                            Locale.US,
-                            "%.0f",
-                            kbps
-                    ),
+                    String.format(Locale.US, "%.0f", kbps),
                     "KB/s"
             };
 
         } else {
-
             return new String[]{
                     String.format(
                             Locale.US,
@@ -102,130 +65,90 @@ public final class IconTextGenerator {
             String unit
     ) {
 
-        Bitmap bitmap =
-                Bitmap.createBitmap(
-                        SIZE,
-                        SIZE,
-                        Bitmap.Config.ARGB_8888
-                );
+        Bitmap bitmap = Bitmap.createBitmap(
+                SIZE,
+                SIZE,
+                Bitmap.Config.ARGB_8888
+        );
 
-        Canvas canvas =
-                new Canvas(bitmap);
+        Canvas canvas = new Canvas(bitmap);
 
-        /*
-         * =================================
-         * Paint الرقم
-         * =================================
-         */
+        // =========================
+        // الرقم
+        // =========================
+
         Paint numberPaint =
-                createPaint();
+                new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        /*
-         * =================================
-         * Paint الوحدة
-         * =================================
-         */
+        numberPaint.setColor(INDICATOR_COLOR);
+
+        numberPaint.setTypeface(
+                Typeface.create(
+                        Typeface.DEFAULT,
+                        Typeface.BOLD
+                )
+        );
+
+        numberPaint.setTextAlign(Paint.Align.CENTER);
+
+        if (value.length() <= 2) {
+            numberPaint.setTextSize(SIZE * 0.68f);
+
+        } else if (value.length() == 3) {
+            numberPaint.setTextSize(SIZE * 0.57f);
+
+        } else {
+            numberPaint.setTextSize(SIZE * 0.47f);
+        }
+
+        // =========================
+        // الوحدة
+        // =========================
+
         Paint unitPaint =
-                createPaint();
+                new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        /*
-         * =================================
-         * مناطق الرسم
-         * =================================
-         */
+        unitPaint.setColor(INDICATOR_COLOR);
 
-        float numberTop =
-                SAFE_MARGIN;
-
-        float numberBottom =
-                SIZE * 0.68f;
-
-        float unitTop =
-                SIZE * 0.72f;
-
-        float unitBottom =
-                SIZE - SAFE_MARGIN;
-
-        /*
-         * =================================
-         * حجم الرقم المتجاوب
-         * =================================
-         */
-        float numberSize =
-                calculateTextSize(
-                        value,
-                        numberPaint,
-                        numberTop,
-                        numberBottom,
-                        true
-                );
-
-        numberPaint.setTextSize(
-                numberSize
+        unitPaint.setTypeface(
+                Typeface.create(
+                        Typeface.DEFAULT,
+                        Typeface.BOLD
+                )
         );
 
-        /*
-         * =================================
-         * حجم الوحدة المتجاوب
-         * =================================
-         *
-         * الوحدة أصغر من الرقم،
-         * لكنها واضحة ومتوسطة الحجم.
-         */
-        float unitSize =
-                calculateTextSize(
-                        unit,
-                        unitPaint,
-                        unitTop,
-                        unitBottom,
-                        false
-                );
+        unitPaint.setTextAlign(Paint.Align.CENTER);
 
-        unitPaint.setTextSize(
-                unitSize
-        );
+        unitPaint.setTextSize(SIZE * 0.34f);
 
-        /*
-         * =================================
-         * موضع الرقم
-         * =================================
-         */
+        // =========================
+        // موضع الرقم
+        // =========================
+
         Paint.FontMetrics numberMetrics =
                 numberPaint.getFontMetrics();
 
-        float numberCenter =
-                (numberTop + numberBottom) / 2f;
-
         float numberY =
-                numberCenter
-                        - (
-                        numberMetrics.ascent
-                                + numberMetrics.descent
-                ) / 2f;
+                (SIZE * 0.45f)
+                        - (numberMetrics.ascent
+                        + numberMetrics.descent) / 2f;
 
-        /*
-         * =================================
-         * موضع الوحدة
-         * =================================
-         */
+        // =========================
+        // موضع الوحدة
+        // =========================
+
         Paint.FontMetrics unitMetrics =
                 unitPaint.getFontMetrics();
 
-        float unitCenter =
-                (unitTop + unitBottom) / 2f;
-
         float unitY =
-                unitCenter
-                        - (
-                        unitMetrics.ascent
-                                + unitMetrics.descent
-                ) / 2f;
+                (SIZE * 0.84f)
+                        - (unitMetrics.ascent
+                        + unitMetrics.descent) / 2f;
 
-        /*
-         * =================================
-         * رسم الرقم
-         * =================================
-         */
+        // =========================
+        // رسم الرقم
+        // =========================
+
         canvas.save();
 
         canvas.scale(
@@ -244,19 +167,14 @@ public final class IconTextGenerator {
 
         canvas.restore();
 
-        /*
-         * =================================
-         * رسم الوحدة
-         * =================================
-         */
+        // =========================
+        // رسم الوحدة
+        // =========================
+
         canvas.save();
 
-        /*
-         * الوحدة أعرض قليلًا من الرقم
-         * حتى تكون KB/s و MB/s واضحة.
-         */
         canvas.scale(
-                0.80f,
+                HORIZONTAL_SCALE,
                 VERTICAL_SCALE,
                 SIZE / 2f,
                 unitY
@@ -271,135 +189,6 @@ public final class IconTextGenerator {
 
         canvas.restore();
 
-        return Icon.createWithBitmap(
-                bitmap
-        );
+        return Icon.createWithBitmap(bitmap);
     }
-
-    /*
-     * =================================
-     * إنشاء Paint
-     * =================================
-     */
-    private static Paint createPaint() {
-
-        Paint paint =
-                new Paint(
-                        Paint.ANTI_ALIAS_FLAG
-                                | Paint.SUBPIXEL_TEXT_FLAG
-        );
-
-        paint.setColor(
-                INDICATOR_COLOR
-        );
-
-        paint.setTypeface(
-                Typeface.create(
-                        Typeface.DEFAULT,
-                        Typeface.BOLD
-                )
-        );
-
-        paint.setTextAlign(
-                Paint.Align.CENTER
-        );
-
-        paint.setLinearText(true);
-
-        paint.setDither(true);
-
-        return paint;
     }
-
-    /*
-     * =================================
-     * حساب الحجم المتجاوب
-     * =================================
-     */
-    private static float calculateTextSize(
-            String text,
-            Paint paint,
-            float top,
-            float bottom,
-            boolean isNumber
-    ) {
-
-        /*
-         * الرقم يبدأ بحجم ضخم.
-         */
-        float maxSize =
-                isNumber
-                        ? SIZE * 0.90f
-                        : SIZE * 0.34f;
-
-        /*
-         * الحد الأدنى.
-         */
-        float minSize =
-                isNumber
-                        ? SIZE * 0.20f
-                        : SIZE * 0.12f;
-
-        /*
-         * الارتفاع المتاح.
-         */
-        float availableHeight =
-                bottom - top;
-
-        /*
-         * حساب الارتفاع قبل التمديد.
-         */
-        float maximumHeight =
-                availableHeight
-                        / VERTICAL_SCALE;
-
-        /*
-         * العرض المتاح.
-         */
-        float maximumWidth =
-                (SIZE - SAFE_MARGIN * 2f)
-                        / HORIZONTAL_SCALE;
-
-        float size =
-                maxSize;
-
-        /*
-         * تصغير الحجم تلقائيًا حتى
-         * يدخل النص بالكامل.
-         */
-        while (size > minSize) {
-
-            paint.setTextSize(size);
-
-            Paint.FontMetrics metrics =
-                    paint.getFontMetrics();
-
-            float textHeight =
-                    metrics.descent
-                            - metrics.ascent;
-
-            float textWidth =
-                    paint.measureText(text);
-
-            boolean heightFits =
-                    textHeight
-                            <= maximumHeight;
-
-            boolean widthFits =
-                    textWidth
-                            <= maximumWidth;
-
-            if (heightFits && widthFits) {
-                break;
-            }
-
-            size -= 2f;
-        }
-
-        if (size < minSize) {
-            size = minSize;
-        }
-
-        return size;
-    }
-}
