@@ -12,38 +12,55 @@ import java.util.Locale;
 public final class IconTextGenerator {
 
     /*
-     * حجم المؤشر
-     * أكبر قليلًا من النسخة السابقة
+     * حجم الأيقونة الأساسي.
      */
     private static final int SIZE = 140;
 
     /*
-     * التمديد الرأسي
+     * التمديد الرأسي.
      */
     private static final float VERTICAL_SCALE = 1.30f;
 
     /*
-     * التنحيف الأفقي
+     * التنحيف الأفقي.
      */
     private static final float HORIZONTAL_SCALE = 0.75f;
 
     /*
-     * اللون البرتقالي
+     * اللون البرتقالي.
      */
     private static final int INDICATOR_COLOR =
             Color.rgb(255, 145, 0);
+
+    /*
+     * هامش أمان داخل الأيقونة.
+     */
+    private static final float SAFE_MARGIN =
+            SIZE * 0.05f;
 
     private IconTextGenerator() {
     }
 
     public static Icon forSpeed(long bytesPerSecond) {
-        String[] label = shortLabel(bytesPerSecond);
-        return render(label[0], label[1]);
+
+        String[] label =
+                shortLabel(bytesPerSecond);
+
+        return render(
+                label[0],
+                label[1]
+        );
     }
 
-    private static String[] shortLabel(long bytesPerSecond) {
+    /*
+     * تحويل السرعة إلى قيمة مختصرة.
+     */
+    private static String[] shortLabel(
+            long bytesPerSecond
+    ) {
 
-        double kbps = bytesPerSecond / 1024.0;
+        double kbps =
+                bytesPerSecond / 1024.0;
 
         if (kbps < 1.0) {
 
@@ -81,105 +98,142 @@ public final class IconTextGenerator {
             String unit
     ) {
 
-        Bitmap bitmap = Bitmap.createBitmap(
-                SIZE,
-                SIZE,
-                Bitmap.Config.ARGB_8888
-        );
+        Bitmap bitmap =
+                Bitmap.createBitmap(
+                        SIZE,
+                        SIZE,
+                        Bitmap.Config.ARGB_8888
+                );
 
-        Canvas canvas = new Canvas(bitmap);
+        Canvas canvas =
+                new Canvas(bitmap);
 
-        // =========================
-        // الرقم
-        // =========================
-
+        /*
+         * =================================
+         * إعداد الرقم
+         * =================================
+         */
         Paint numberPaint =
-                new Paint(Paint.ANTI_ALIAS_FLAG);
+                createPaint();
 
-        numberPaint.setColor(INDICATOR_COLOR);
-
-        numberPaint.setTypeface(
-                Typeface.create(
-                        Typeface.DEFAULT,
-                        Typeface.BOLD
-                )
-        );
-
-        numberPaint.setTextAlign(
-                Paint.Align.CENTER
-        );
-
-        if (value.length() <= 2) {
-
-            numberPaint.setTextSize(
-                    SIZE * 0.68f
-            );
-
-        } else if (value.length() == 3) {
-
-            numberPaint.setTextSize(
-                    SIZE * 0.57f
-            );
-
-        } else {
-
-            numberPaint.setTextSize(
-                    SIZE * 0.47f
-            );
-        }
-
-        // =========================
-        // الوحدة
-        // =========================
-
+        /*
+         * =================================
+         * إعداد الوحدة
+         * =================================
+         */
         Paint unitPaint =
-                new Paint(Paint.ANTI_ALIAS_FLAG);
+                createPaint();
 
-        unitPaint.setColor(INDICATOR_COLOR);
+        /*
+         * =================================
+         * المساحة المتاحة
+         * =================================
+         *
+         * نقسم الأيقونة إلى منطقتين:
+         *
+         * الرقم:
+         * الجزء العلوي.
+         *
+         * الوحدة:
+         * الجزء السفلي.
+         */
+        float numberTop =
+                SAFE_MARGIN;
 
-        unitPaint.setTypeface(
-                Typeface.create(
-                        Typeface.DEFAULT,
-                        Typeface.BOLD
-                )
+        float numberBottom =
+                SIZE * 0.64f;
+
+        float unitTop =
+                SIZE * 0.67f;
+
+        float unitBottom =
+                SIZE - SAFE_MARGIN;
+
+        /*
+         * =================================
+         * حساب حجم الرقم تلقائيًا
+         * =================================
+         *
+         * الحجم يتغير حسب:
+         *
+         * 1. طول الرقم.
+         * 2. عرض الأيقونة.
+         * 3. الارتفاع المتاح.
+         * 4. التمديد الرأسي.
+         * 5. التنحيف الأفقي.
+         */
+        float numberSize =
+                calculateTextSize(
+                        value,
+                        numberPaint,
+                        numberTop,
+                        numberBottom,
+                        true
+                );
+
+        numberPaint.setTextSize(
+                numberSize
         );
 
-        unitPaint.setTextAlign(
-                Paint.Align.CENTER
-        );
+        /*
+         * =================================
+         * حساب حجم الوحدة تلقائيًا
+         * =================================
+         */
+        float unitSize =
+                calculateTextSize(
+                        unit,
+                        unitPaint,
+                        unitTop,
+                        unitBottom,
+                        false
+                );
 
         unitPaint.setTextSize(
-                SIZE * 0.34f
+                unitSize
         );
 
-        // =========================
-        // موضع الرقم
-        // =========================
-
+        /*
+         * =================================
+         * موضع الرقم
+         * =================================
+         */
         Paint.FontMetrics numberMetrics =
                 numberPaint.getFontMetrics();
 
+        float numberCenter =
+                (numberTop + numberBottom) / 2f;
+
         float numberY =
-                (SIZE * 0.45f)
-                        - (numberMetrics.ascent
-                        + numberMetrics.descent) / 2f;
+                numberCenter
+                        - (
+                        numberMetrics.ascent
+                                + numberMetrics.descent
+                ) / 2f;
 
-        // =========================
-        // موضع الوحدة
-        // =========================
-
+        /*
+         * =================================
+         * موضع الوحدة
+         * =================================
+         */
         Paint.FontMetrics unitMetrics =
                 unitPaint.getFontMetrics();
 
+        float unitCenter =
+                (unitTop + unitBottom) / 2f;
+
         float unitY =
-                (SIZE * 0.84f)
-                        - (unitMetrics.ascent
-                        + unitMetrics.descent) / 2f;
+                unitCenter
+                        - (
+                        unitMetrics.ascent
+                                + unitMetrics.descent
+                ) / 2f;
 
-        // =========================
-        // رسم الرقم
-        // =========================
-
+        /*
+         * =================================
+         * رسم الرقم
+         * =================================
+         */
         canvas.save();
 
         canvas.scale(
@@ -198,10 +252,11 @@ public final class IconTextGenerator {
 
         canvas.restore();
 
-        // =========================
-        // رسم الوحدة
-        // =========================
-
+        /*
+         * =================================
+         * رسم الوحدة
+         * =================================
+         */
         canvas.save();
 
         canvas.scale(
@@ -220,8 +275,143 @@ public final class IconTextGenerator {
 
         canvas.restore();
 
-        return Icon.createWithBitmap(bitmap);
+        return Icon.createWithBitmap(
+                bitmap
+        );
+    }
+
+    /*
+     * إنشاء Paint موحد.
+     */
+    private static Paint createPaint() {
+
+        Paint paint =
+                new Paint(
+                        Paint.ANTI_ALIAS_FLAG
+                                | Paint.SUBPIXEL_TEXT_FLAG
+                );
+
+        paint.setColor(
+                INDICATOR_COLOR
+        );
+
+        paint.setTypeface(
+                Typeface.create(
+                        Typeface.DEFAULT,
+                        Typeface.BOLD
+                )
+        );
+
+        paint.setTextAlign(
+                Paint.Align.CENTER
+        );
+
+        paint.setLinearText(true);
+
+        return paint;
+    }
+
+    /*
+     * =====================================
+     * حساب حجم النص بشكل متجاوب
+     * =====================================
+     *
+     * نبدأ بحجم كبير ثم نصغره تدريجيًا
+     * حتى يدخل النص بالكامل داخل المساحة.
+     */
+    private static float calculateTextSize(
+            String text,
+            Paint paint,
+            float top,
+            float bottom,
+            boolean isNumber
+    ) {
+
+        /*
+         * الحجم الابتدائي.
+         */
+        float maxSize =
+                isNumber
+                        ? SIZE * 0.75f
+                        : SIZE * 0.40f;
+
+        /*
+         * الحد الأدنى.
+         */
+        float minSize =
+                isNumber
+                        ? SIZE * 0.25f
+                        : SIZE * 0.18f;
+
+        /*
+         * المساحة الرأسية المتاحة
+         * قبل التمديد.
+         */
+        float availableHeight =
+                bottom - top;
+
+        /*
+         * لأن النص سيتم تمديده رأسيًا،
+         * نحتاج إلى أخذ VERTICAL_SCALE
+         * في الحسبان.
+         */
+        float maximumHeight =
+                availableHeight
+                        / VERTICAL_SCALE;
+
+        /*
+         * الحد الأقصى للعرض.
+         *
+         * التنحيف الأفقي 0.75 يجعل
+         * النص النهائي أضيق.
+         */
+        float maximumWidth =
+                (SIZE - SAFE_MARGIN * 2f)
+                        / HORIZONTAL_SCALE;
+
+        float size =
+                maxSize;
+
+        /*
+         * تقليل الحجم حتى يدخل
+         * النص داخل الحدود.
+         */
+        while (size > minSize) {
+
+            paint.setTextSize(size);
+
+            Paint.FontMetrics metrics =
+                    paint.getFontMetrics();
+
+            float textHeight =
+                    metrics.descent
+                            - metrics.ascent;
+
+            float textWidth =
+                    paint.measureText(text);
+
+            boolean heightFits =
+                    textHeight
+                            <= maximumHeight;
+
+            boolean widthFits =
+                    textWidth
+                            <= maximumWidth;
+
+            if (heightFits && widthFits) {
+                break;
+            }
+
+            size -= 1f;
+        }
+
+        /*
+         * حماية إضافية.
+         */
+        if (size < minSize) {
+            size = minSize;
+        }
+
+        return size;
     }
 }
-
-النتيجة: المؤشر سيكون أكبر قليلًا، لكن الأرقام لن تصبح أعرض؛ ستظل مضغوطة أفقيًا "0.75×" وطويلة رأسيًا "1.30×"، واللون سيكون برتقاليًا.
