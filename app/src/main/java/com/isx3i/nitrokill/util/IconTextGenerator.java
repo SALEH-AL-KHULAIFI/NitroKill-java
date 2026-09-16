@@ -11,29 +11,15 @@ import java.util.Locale;
 
 public final class IconTextGenerator {
 
-    /*
-     * حجم المؤشر الأساسي
-     */
     private static final int SIZE = 128;
 
-    /*
-     * التمديد الرأسي
-     * 1.00 = طبيعي
-     * 1.30 = أطول بنسبة 30%
-     */
+    // التمديد الرأسي: 30%
     private static final float VERTICAL_SCALE = 1.30f;
 
-    /*
-     * التنحيف الأفقي
-     * 1.00 = العرض الطبيعي
-     * 0.75 = أنحف بنسبة 25%
-     */
+    // التنحيف الأفقي: 25%
     private static final float HORIZONTAL_SCALE = 0.75f;
 
-    /*
-     * لون المؤشر:
-     * سماوي نيون
-     */
+    // سماوي نيون
     private static final int INDICATOR_COLOR =
             Color.rgb(0, 220, 255);
 
@@ -45,37 +31,23 @@ public final class IconTextGenerator {
         return render(label[0], label[1]);
     }
 
-    /**
-     * تحويل السرعة إلى قيمة مختصرة.
-     *
-     * أمثلة:
-     * 500 KB/s  -> 500 + KB/s
-     * 1.5 MB/s  -> 1.5 + MB/s
-     */
     private static String[] shortLabel(long bytesPerSecond) {
 
         double kbps = bytesPerSecond / 1024.0;
 
         if (kbps < 1.0) {
-
             return new String[]{
                     "0",
                     "KB/s"
             };
 
         } else if (kbps < 1000.0) {
-
             return new String[]{
-                    String.format(
-                            Locale.US,
-                            "%.0f",
-                            kbps
-                    ),
+                    String.format(Locale.US, "%.0f", kbps),
                     "KB/s"
             };
 
         } else {
-
             return new String[]{
                     String.format(
                             Locale.US,
@@ -100,11 +72,10 @@ public final class IconTextGenerator {
 
         Canvas canvas = new Canvas(bitmap);
 
-        /*
-         * =========================
-         * الرقم
-         * =========================
-         */
+        // =========================
+        // الرقم
+        // =========================
+
         Paint numberPaint =
                 new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -112,43 +83,27 @@ public final class IconTextGenerator {
 
         numberPaint.setTypeface(
                 Typeface.create(
-                        Typeface.DEFAULT_BOLD,
+                        Typeface.DEFAULT,
                         Typeface.BOLD
                 )
         );
 
-        numberPaint.setTextAlign(
-                Paint.Align.CENTER
-        );
+        numberPaint.setTextAlign(Paint.Align.CENTER);
 
-        /*
-         * نحافظ على حجم الرقم كما هو.
-         * لا نقوم بتصغير textSize.
-         */
         if (value.length() <= 2) {
-
-            numberPaint.setTextSize(
-                    SIZE * 0.68f
-            );
+            numberPaint.setTextSize(SIZE * 0.68f);
 
         } else if (value.length() == 3) {
-
-            numberPaint.setTextSize(
-                    SIZE * 0.57f
-            );
+            numberPaint.setTextSize(SIZE * 0.57f);
 
         } else {
-
-            numberPaint.setTextSize(
-                    SIZE * 0.47f
-            );
+            numberPaint.setTextSize(SIZE * 0.47f);
         }
 
-        /*
-         * =========================
-         * الوحدة
-         * =========================
-         */
+        // =========================
+        // الوحدة
+        // =========================
+
         Paint unitPaint =
                 new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -156,67 +111,43 @@ public final class IconTextGenerator {
 
         unitPaint.setTypeface(
                 Typeface.create(
-                        Typeface.DEFAULT_BOLD,
+                        Typeface.DEFAULT,
                         Typeface.BOLD
                 )
         );
 
-        unitPaint.setTextAlign(
-                Paint.Align.CENTER
-        );
+        unitPaint.setTextAlign(Paint.Align.CENTER);
 
-        /*
-         * حجم الوحدة يبقى كبيرًا.
-         */
-        unitPaint.setTextSize(
-                SIZE * 0.34f
-        );
+        unitPaint.setTextSize(SIZE * 0.34f);
 
-        /*
-         * =========================
-         * موضع الرقم
-         * =========================
-         */
+        // =========================
+        // موضع الرقم
+        // =========================
+
         Paint.FontMetrics numberMetrics =
                 numberPaint.getFontMetrics();
 
         float numberY =
                 (SIZE * 0.45f)
-                        - (
-                        numberMetrics.ascent
-                                + numberMetrics.descent
-                ) / 2f;
+                        - (numberMetrics.ascent
+                        + numberMetrics.descent) / 2f;
 
-        /*
-         * =========================
-         * موضع الوحدة
-         * =========================
-         */
+        // =========================
+        // موضع الوحدة
+        // =========================
+
         Paint.FontMetrics unitMetrics =
                 unitPaint.getFontMetrics();
 
         float unitY =
                 (SIZE * 0.84f)
-                        - (
-                        unitMetrics.ascent
-                                + unitMetrics.descent
-                ) / 2f;
+                        - (unitMetrics.ascent
+                        + unitMetrics.descent) / 2f;
 
-        /*
-         * =========================
-         * رسم الرقم
-         * =========================
-         *
-         * X = 0.75
-         * يجعل الرقم أنحف أفقيًا.
-         *
-         * Y = 1.30
-         * يجعل الرقم أطول رأسيًا.
-         *
-         * لذلك:
-         * لا نصغر الحجم الأساسي،
-         * وإنما نضغط العرض فقط.
-         */
+        // =========================
+        // رسم الرقم
+        // =========================
+
         canvas.save();
 
         canvas.scale(
@@ -235,13 +166,10 @@ public final class IconTextGenerator {
 
         canvas.restore();
 
-        /*
-         * =========================
-         * رسم الوحدة
-         * =========================
-         *
-         * نفس التنحيف والتمديد.
-         */
+        // =========================
+        // رسم الوحدة
+        // =========================
+
         canvas.save();
 
         canvas.scale(
@@ -263,15 +191,3 @@ public final class IconTextGenerator {
         return Icon.createWithBitmap(bitmap);
     }
 }
-
-ضع الملف مكان الملف الحالي:
-
-"app/src/main/java/com/isx3i/nitrokill/util/IconTextGenerator.java"
-
-الإعدادات المهمة حاليًا:
-
-SIZE = 128
-HORIZONTAL_SCALE = 0.75f
-VERTICAL_SCALE = 1.30f
-
-بهذا نحافظ على طول الأرقام، ونضغطها من الجوانب فقط. لونها أصبح سماوي نيون.
