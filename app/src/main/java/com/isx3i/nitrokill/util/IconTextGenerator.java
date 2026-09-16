@@ -12,9 +12,18 @@ import java.util.Locale;
 public final class IconTextGenerator {
 
     /*
-     * Larger canvas for a larger status-bar indicator.
+     * Larger canvas for the status-bar indicator.
      */
     private static final int SIZE = 128;
+
+    /*
+     * Vertical stretch factor.
+     *
+     * 1.00f = normal height
+     * 1.20f = 20% taller
+     * 1.30f = 30% taller
+     */
+    private static final float VERTICAL_SCALE = 1.30f;
 
     private IconTextGenerator() {
     }
@@ -28,8 +37,8 @@ public final class IconTextGenerator {
      * Converts bytes/sec to a compact display value.
      *
      * Examples:
-     * 500 KB/s  -> 500 + KB/s
-     * 1.5 MB/s  -> 1.5 + MB/s
+     * 500 KB/s -> 500 + KB/s
+     * 1.5 MB/s -> 1.5 + MB/s
      */
     private static String[] shortLabel(long bytesPerSecond) {
 
@@ -81,7 +90,9 @@ public final class IconTextGenerator {
         numberPaint.setTextAlign(Paint.Align.CENTER);
 
         /*
-         * Large speed number.
+         * Keep the horizontal size controlled.
+         * The vertical scale below will make the numbers taller
+         * without making them wider.
          */
         if (value.length() <= 2) {
             numberPaint.setTextSize(SIZE * 0.68f);
@@ -93,7 +104,7 @@ public final class IconTextGenerator {
 
         /*
          * =========================
-         * SPEED UNIT
+         * UNIT
          * =========================
          */
         Paint unitPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -110,42 +121,48 @@ public final class IconTextGenerator {
         unitPaint.setTextAlign(Paint.Align.CENTER);
 
         /*
-         * Larger unit:
-         *
-         * KB/s
-         * MB/s
+         * Large unit.
          */
         unitPaint.setTextSize(SIZE * 0.34f);
 
         /*
          * =========================
-         * NUMBER POSITION
+         * VERTICAL POSITIONS
          * =========================
          */
         Paint.FontMetrics numberMetrics =
                 numberPaint.getFontMetrics();
 
         float numberY =
-                (SIZE * 0.47f)
+                (SIZE * 0.45f)
                         - (numberMetrics.ascent
                         + numberMetrics.descent) / 2f;
 
-        /*
-         * =========================
-         * UNIT POSITION
-         * =========================
-         */
         Paint.FontMetrics unitMetrics =
                 unitPaint.getFontMetrics();
 
         float unitY =
-                (SIZE * 0.86f)
+                (SIZE * 0.84f)
                         - (unitMetrics.ascent
                         + unitMetrics.descent) / 2f;
 
         /*
-         * Draw speed number.
+         * =========================
+         * DRAW NUMBER
+         * =========================
+         *
+         * X scale = 1.00 -> no horizontal stretching.
+         * Y scale = 1.30 -> 30% vertical stretching.
          */
+        canvas.save();
+
+        canvas.scale(
+                1.0f,
+                VERTICAL_SCALE,
+                SIZE / 2f,
+                numberY
+        );
+
         canvas.drawText(
                 value,
                 SIZE / 2f,
@@ -153,15 +170,33 @@ public final class IconTextGenerator {
                 numberPaint
         );
 
+        canvas.restore();
+
         /*
-         * Draw KB/s or MB/s.
+         * =========================
+         * DRAW UNIT
+         * =========================
+         *
+         * The same 1.30× vertical stretch is applied
+         * to KB/s and MB/s.
          */
+        canvas.save();
+
+        canvas.scale(
+                1.0f,
+                VERTICAL_SCALE,
+                SIZE / 2f,
+                unitY
+        );
+
         canvas.drawText(
                 unit,
                 SIZE / 2f,
                 unitY,
                 unitPaint
         );
+
+        canvas.restore();
 
         return Icon.createWithBitmap(bitmap);
     }
