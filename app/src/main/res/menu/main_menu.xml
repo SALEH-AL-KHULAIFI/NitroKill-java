@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_options"
+        android:title="@string/menu_options"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_reenable"
+        android:title="@string/menu_reenable"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_hide_exit"
+        android:title="@string/menu_hide_exit"
+        android:showAsAction="never" />
+</menu>

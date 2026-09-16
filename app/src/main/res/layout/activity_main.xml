@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:background="@color/brand_primary"
+            android:titleTextColor="@android:color/white"
+            android:title="@string/main_title" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/text_monitor_state"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_dark" />
+
+                <Switch
+                    android:id="@+id/switch_monitor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- Disclaimer -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_disclaimer"
+                android:padding="12dp"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/disclaimer_title"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_dark" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/disclaimer_body"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_dark" />
+            </LinearLayout>
+
+            <!-- Usage table -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:elevation="2dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/table_title"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_dark" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <TextView style="@style/UsageHeaderCell" android:text="@string/table_date" />
+                    <TextView style="@style/UsageHeaderCell" android:text="@string/table_mobile" />
+                    <TextView style="@style/UsageHeaderCell" android:text="@string/table_transfer" />
+                    <TextView style="@style/UsageHeaderCell" android:text="@string/table_total" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/table_row_bg"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp">
+
+                    <TextView android:id="@+id/cell_date" style="@style/UsageDataCell" />
+                    <TextView android:id="@+id/cell_mobile" style="@style/UsageDataCell" />
+                    <TextView android:id="@+id/cell_transfer" style="@style/UsageDataCell" />
+                    <TextView android:id="@+id/cell_total" style="@style/UsageDataCell" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/about_developer"
+                android:textSize="12sp"
+                android:textColor="#991A1C19" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
