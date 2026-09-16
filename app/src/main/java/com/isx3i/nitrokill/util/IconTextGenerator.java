@@ -11,9 +11,10 @@ import java.util.Locale;
 
 public final class IconTextGenerator {
 
-    private static final int SIZE = 128;
+    // مساحة أصغر حتى لا يصغر أندرويد النص
+    private static final int SIZE = 64;
 
-    // السماوي الظاهر في الصورة
+    // اللون السماوي
     private static final int INDICATOR_COLOR =
             Color.rgb(0, 210, 240);
 
@@ -74,23 +75,22 @@ public final class IconTextGenerator {
                 Typeface.BOLD
         ));
         paint.setTextAlign(Paint.Align.CENTER);
-        paint.setFakeBoldText(false);
 
-        // الرقم — حجم قريب من مؤشر النظام الأبيض
+        // تكبير الرقم داخل مساحة الأيقونة
         if (value.length() <= 1) {
-            paint.setTextSize(62f);
+            paint.setTextSize(42f);
         } else if (value.length() == 2) {
-            paint.setTextSize(54f);
+            paint.setTextSize(36f);
         } else if (value.length() == 3) {
-            paint.setTextSize(45f);
+            paint.setTextSize(29f);
         } else {
-            paint.setTextSize(38f);
+            paint.setTextSize(24f);
         }
 
         Paint.FontMetrics numberMetrics = paint.getFontMetrics();
 
         float numberY =
-                43f -
+                22f -
                 (numberMetrics.ascent + numberMetrics.descent) / 2f;
 
         canvas.drawText(
@@ -100,13 +100,13 @@ public final class IconTextGenerator {
                 paint
         );
 
-        // الوحدة
-        paint.setTextSize(27f);
+        // تكبير KB/s أو MB/s
+        paint.setTextSize(17f);
 
         Paint.FontMetrics unitMetrics = paint.getFontMetrics();
 
         float unitY =
-                91f -
+                48f -
                 (unitMetrics.ascent + unitMetrics.descent) / 2f;
 
         canvas.drawText(
