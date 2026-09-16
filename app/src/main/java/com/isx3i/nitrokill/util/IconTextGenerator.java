@@ -9,17 +9,10 @@ import android.graphics.drawable.Icon;
 
 import java.util.Locale;
 
-/**
- * Generates the dynamic internet-speed notification icon.
- *
- * The speed value is rendered directly into the notification icon
- * so the current speed is visible next to the status-bar icons.
- */
 public final class IconTextGenerator {
 
     /*
-     * Larger canvas gives Android more pixels to work with when
-     * rendering the notification icon.
+     * Larger canvas for a larger status-bar indicator.
      */
     private static final int SIZE = 128;
 
@@ -32,29 +25,29 @@ public final class IconTextGenerator {
     }
 
     /**
-     * Converts the speed into a compact number + unit.
+     * Converts bytes/sec to a compact display value.
      *
      * Examples:
-     * 500 KB/s -> "500" + "K"
-     * 1.5 MB/s -> "1.5" + "M"
+     * 500 KB/s  -> 500 + KB/s
+     * 1.5 MB/s  -> 1.5 + MB/s
      */
     private static String[] shortLabel(long bytesPerSecond) {
 
         double kbps = bytesPerSecond / 1024.0;
 
         if (kbps < 1.0) {
-            return new String[]{"0", "K"};
+            return new String[]{"0", "KB/s"};
 
         } else if (kbps < 1000.0) {
             return new String[]{
                     String.format(Locale.US, "%.0f", kbps),
-                    "K"
+                    "KB/s"
             };
 
         } else {
             return new String[]{
                     String.format(Locale.US, "%.1f", kbps / 1024.0),
-                    "M"
+                    "MB/s"
             };
         }
     }
@@ -88,11 +81,7 @@ public final class IconTextGenerator {
         numberPaint.setTextAlign(Paint.Align.CENTER);
 
         /*
-         * Larger number.
-         *
-         * Short values such as 0, 25, 120 become very large.
-         * Longer values receive slightly smaller text so they
-         * still fit horizontally.
+         * Large speed number.
          */
         if (value.length() <= 2) {
             numberPaint.setTextSize(SIZE * 0.68f);
@@ -104,7 +93,7 @@ public final class IconTextGenerator {
 
         /*
          * =========================
-         * UNIT
+         * SPEED UNIT
          * =========================
          */
         Paint unitPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -121,36 +110,41 @@ public final class IconTextGenerator {
         unitPaint.setTextAlign(Paint.Align.CENTER);
 
         /*
-         * Unit is also larger than before.
+         * Larger unit:
+         *
+         * KB/s
+         * MB/s
          */
-        unitPaint.setTextSize(SIZE * 0.27f);
+        unitPaint.setTextSize(SIZE * 0.34f);
 
         /*
          * =========================
-         * VERTICAL POSITION
+         * NUMBER POSITION
          * =========================
-         *
-         * Move the number slightly upward and make it occupy
-         * more of the vertical space.
          */
-        Paint.FontMetrics numberMetrics = numberPaint.getFontMetrics();
+        Paint.FontMetrics numberMetrics =
+                numberPaint.getFontMetrics();
 
         float numberY =
-                (SIZE * 0.54f)
-                        - (numberMetrics.ascent + numberMetrics.descent) / 2f;
+                (SIZE * 0.47f)
+                        - (numberMetrics.ascent
+                        + numberMetrics.descent) / 2f;
 
         /*
-         * Unit remains below the number with enough separation
-         * to prevent overlap.
+         * =========================
+         * UNIT POSITION
+         * =========================
          */
-        Paint.FontMetrics unitMetrics = unitPaint.getFontMetrics();
+        Paint.FontMetrics unitMetrics =
+                unitPaint.getFontMetrics();
 
         float unitY =
-                (SIZE * 0.89f)
-                        - (unitMetrics.ascent + unitMetrics.descent) / 2f;
+                (SIZE * 0.86f)
+                        - (unitMetrics.ascent
+                        + unitMetrics.descent) / 2f;
 
         /*
-         * Draw the speed number.
+         * Draw speed number.
          */
         canvas.drawText(
                 value,
@@ -160,7 +154,7 @@ public final class IconTextGenerator {
         );
 
         /*
-         * Draw K or M.
+         * Draw KB/s or MB/s.
          */
         canvas.drawText(
                 unit,
