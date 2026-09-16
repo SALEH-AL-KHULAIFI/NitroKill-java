@@ -12,7 +12,10 @@ import java.util.Locale;
 public final class IconTextGenerator {
 
     private static final int SIZE = 64;
-    private static final int INDICATOR_COLOR = Color.rgb(0, 210, 240);
+
+    // سماوي كهربائي واضح جدًا على الخلفية السوداء
+    private static final int INDICATOR_COLOR =
+            Color.rgb(32, 217, 255);
 
     private IconTextGenerator() {
     }
@@ -27,50 +30,114 @@ public final class IconTextGenerator {
 
         if (kbps < 1.0) {
             return new String[]{"0", "KB/s"};
+
         } else if (kbps < 1000.0) {
-            return new String[]{String.format(Locale.US, "%.0f", kbps), "KB/s"};
+            return new String[]{
+                    String.format(Locale.US, "%.0f", kbps),
+                    "KB/s"
+            };
+
         } else {
-            return new String[]{String.format(Locale.US, "%.1f", kbps / 1024.0), "MB/s"};
+            return new String[]{
+                    String.format(
+                            Locale.US,
+                            "%.1f",
+                            kbps / 1024.0
+                    ),
+                    "MB/s"
+            };
         }
     }
 
     private static Icon render(String value, String unit) {
-        Bitmap bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888);
+
+        Bitmap bitmap = Bitmap.createBitmap(
+                SIZE,
+                SIZE,
+                Bitmap.Config.ARGB_8888
+        );
+
         Canvas canvas = new Canvas(bitmap);
 
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG);
+        Paint paint = new Paint(
+                Paint.ANTI_ALIAS_FLAG |
+                Paint.SUBPIXEL_TEXT_FLAG
+        );
+
         paint.setColor(INDICATOR_COLOR);
-        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+
+        paint.setTypeface(
+                Typeface.create(
+                        Typeface.DEFAULT,
+                        Typeface.BOLD
+                )
+        );
+
         paint.setTextAlign(Paint.Align.CENTER);
 
+        // حجم الرقم: لا تغيّره، لأنه صار مضبوطًا
         float numberSize;
+
         if (value.length() <= 1) {
             numberSize = 47f;
+
         } else if (value.length() == 2) {
             numberSize = 41f;
+
         } else if (value.length() == 3) {
             numberSize = 34f;
+
         } else {
             numberSize = 29f;
         }
 
         paint.setTextSize(numberSize);
 
-        Paint.FontMetrics numberMetrics = paint.getFontMetrics();
-        float numberY = 20f - (numberMetrics.ascent + numberMetrics.descent) / 2f;
+        Paint.FontMetrics numberMetrics =
+                paint.getFontMetrics();
 
+        float numberY =
+                20f -
+                (numberMetrics.ascent
+                        + numberMetrics.descent) / 2f;
+
+        // شد الرقم رأسيًا بدون تغيير عرضه
         canvas.save();
-        canvas.scale(1.00f, 1.16f, SIZE / 2f, numberY);
-        canvas.drawText(value, SIZE / 2f, numberY, paint);
+
+        canvas.scale(
+                1.00f,
+                1.16f,
+                SIZE / 2f,
+                numberY
+        );
+
+        canvas.drawText(
+                value,
+                SIZE / 2f,
+                numberY,
+                paint
+        );
+
         canvas.restore();
 
-        paint.setTextSize(22f);
+        // الوحدة: كبرت من 22f إلى 24f
+        paint.setTextSize(24f);
 
-        Paint.FontMetrics unitMetrics = paint.getFontMetrics();
-        float unitY = 51f - (unitMetrics.ascent + unitMetrics.descent) / 2f;
+        Paint.FontMetrics unitMetrics =
+                paint.getFontMetrics();
 
-        canvas.drawText(unit, SIZE / 2f, unitY, paint);
+        float unitY =
+                51f -
+                (unitMetrics.ascent
+                        + unitMetrics.descent) / 2f;
+
+        canvas.drawText(
+                unit,
+                SIZE / 2f,
+                unitY,
+                paint
+        );
 
         return Icon.createWithBitmap(bitmap);
     }
-}
+            }
