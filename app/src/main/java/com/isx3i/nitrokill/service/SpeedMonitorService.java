@@ -1,218 +1,193 @@
-package com.isx3i.nitrokill.service;
+package com.isx3i.nitrokill.util;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
-import android.net.TrafficStats;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
 
-import com.isx3i.nitrokill.MainActivity;
-import com.isx3i.nitrokill.NitroKillApp;
-import com.isx3i.nitrokill.R;
-import com.isx3i.nitrokill.data.UsageRepository;
-import com.isx3i.nitrokill.util.IconTextGenerator;
+import java.util.Locale;
 
-public class SpeedMonitorService extends Service {
+public final class IconTextGenerator {
 
-    private static final int NOTIFICATION_ID = 1001;
-    private static final long TICK_MS = 1000L;
+    private static final int SIZE = 128;
 
-    public static void start(Context context) {
-        context.startForegroundService(
-                new Intent(
-                        context,
-                        SpeedMonitorService.class
-                )
-        );
+    // التمديد الرأسي: 30%
+    private static final float VERTICAL_SCALE = 1.30f;
+
+    // التنحيف الأفقي: 25%
+    private static final float HORIZONTAL_SCALE = 0.75f;
+
+    // سماوي نيون
+    private static final int INDICATOR_COLOR =
+            Color.rgb(0, 220, 255);
+
+    private IconTextGenerator() {
     }
 
-    public static void stop(Context context) {
-        context.stopService(
-                new Intent(
-                        context,
-                        SpeedMonitorService.class
-                )
-        );
+    public static Icon forSpeed(long bytesPerSecond) {
+        String[] label = shortLabel(bytesPerSecond);
+        return render(label[0], label[1]);
     }
 
-    private final Handler handler =
-            new Handler(
-                    Looper.getMainLooper()
-            );
+    private static String[] shortLabel(long bytesPerSecond) {
 
-    private long lastBytes = 0L;
+        double kbps = bytesPerSecond / 1024.0;
 
-    private UsageRepository usageRepository;
-
-    private final Runnable tick =
-            new Runnable() {
-
-                @Override
-                public void run() {
-
-                    updateSpeed();
-
-                    usageRepository
-                            .ensureBaselineForToday();
-
-                    handler.postDelayed(
-                            this,
-                            TICK_MS
-                    );
-                }
+        if (kbps < 1.0) {
+            return new String[]{
+                    "0",
+                    "KB/s"
             };
 
-    @Override
-    public void onCreate() {
+        } else if (kbps < 1000.0) {
+            return new String[]{
+                    String.format(Locale.US, "%.0f", kbps),
+                    "KB/s"
+            };
 
-        super.onCreate();
-
-        usageRepository =
-                new UsageRepository(this);
-
-        lastBytes =
-                totalBytesNow();
-
-        startForeground(
-                NOTIFICATION_ID,
-                buildNotification(0L)
-        );
+        } else {
+            return new String[]{
+                    String.format(
+                            Locale.US,
+                            "%.1f",
+                            kbps / 1024.0
+                    ),
+                    "MB/s"
+            };
+        }
     }
 
-    @Override
-    public int onStartCommand(
-            Intent intent,
-            int flags,
-            int startId
+    private static Icon render(
+            String value,
+            String unit
     ) {
 
-        handler.removeCallbacks(tick);
-
-        handler.post(tick);
-
-        return START_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-
-        handler.removeCallbacks(tick);
-
-        super.onDestroy();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-
-        return null;
-    }
-
-    private long totalBytesNow() {
-
-        long rx =
-                TrafficStats.getTotalRxBytes();
-
-        long tx =
-                TrafficStats.getTotalTxBytes();
-
-        return (
-                rx == TrafficStats.UNSUPPORTED
-                        || tx == TrafficStats.UNSUPPORTED
-        )
-                ? 0L
-                : rx + tx;
-    }
-
-    private void updateSpeed() {
-
-        long now =
-                totalBytesNow();
-
-        long bytesPerSecond =
-                Math.max(
-                        now - lastBytes,
-                        0L
-                )
-                        * 1000L
-                        / TICK_MS;
-
-        lastBytes =
-                now;
-
-        Notification notification =
-                buildNotification(
-                        bytesPerSecond
-                );
-
-        getSystemService(
-                NotificationManager.class
-        ).notify(
-                NOTIFICATION_ID,
-                notification
+        Bitmap bitmap = Bitmap.createBitmap(
+                SIZE,
+                SIZE,
+                Bitmap.Config.ARGB_8888
         );
+
+        Canvas canvas = new Canvas(bitmap);
+
+        // =========================
+        // الرقم
+        // =========================
+
+        Paint numberPaint =
+                new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        numberPaint.setColor(INDICATOR_COLOR);
+
+        numberPaint.setTypeface(
+                Typeface.create(
+                        Typeface.DEFAULT,
+                        Typeface.BOLD
+                )
+        );
+
+        numberPaint.setTextAlign(Paint.Align.CENTER);
+
+        if (value.length() <= 2) {
+            numberPaint.setTextSize(SIZE * 0.68f);
+
+        } else if (value.length() == 3) {
+            numberPaint.setTextSize(SIZE * 0.57f);
+
+        } else {
+            numberPaint.setTextSize(SIZE * 0.47f);
+        }
+
+        // =========================
+        // الوحدة
+        // =========================
+
+        Paint unitPaint =
+                new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        unitPaint.setColor(INDICATOR_COLOR);
+
+        unitPaint.setTypeface(
+                Typeface.create(
+                        Typeface.DEFAULT,
+                        Typeface.BOLD
+                )
+        );
+
+        unitPaint.setTextAlign(Paint.Align.CENTER);
+
+        unitPaint.setTextSize(SIZE * 0.34f);
+
+        // =========================
+        // موضع الرقم
+        // =========================
+
+        Paint.FontMetrics numberMetrics =
+                numberPaint.getFontMetrics();
+
+        float numberY =
+                (SIZE * 0.45f)
+                        - (numberMetrics.ascent
+                        + numberMetrics.descent) / 2f;
+
+        // =========================
+        // موضع الوحدة
+        // =========================
+
+        Paint.FontMetrics unitMetrics =
+                unitPaint.getFontMetrics();
+
+        float unitY =
+                (SIZE * 0.84f)
+                        - (unitMetrics.ascent
+                        + unitMetrics.descent) / 2f;
+
+        // =========================
+        // رسم الرقم
+        // =========================
+
+        canvas.save();
+
+        canvas.scale(
+                HORIZONTAL_SCALE,
+                VERTICAL_SCALE,
+                SIZE / 2f,
+                numberY
+        );
+
+        canvas.drawText(
+                value,
+                SIZE / 2f,
+                numberY,
+                numberPaint
+        );
+
+        canvas.restore();
+
+        // =========================
+        // رسم الوحدة
+        // =========================
+
+        canvas.save();
+
+        canvas.scale(
+                HORIZONTAL_SCALE,
+                VERTICAL_SCALE,
+                SIZE / 2f,
+                unitY
+        );
+
+        canvas.drawText(
+                unit,
+                SIZE / 2f,
+                unitY,
+                unitPaint
+        );
+
+        canvas.restore();
+
+        return Icon.createWithBitmap(bitmap);
     }
-
-    private Notification buildNotification(
-            long bytesPerSecond
-    ) {
-
-        Intent openAppIntent =
-                new Intent(
-                        this,
-                        MainActivity.class
-                );
-
-        PendingIntent contentIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        openAppIntent,
-                        PendingIntent.FLAG_IMMUTABLE
-                );
-
-        String speedText =
-                UsageRepository.formatBytes(
-                        bytesPerSecond
-                )
-                        + "/s";
-
-        Icon icon =
-                IconTextGenerator.forSpeed(
-                        bytesPerSecond
-                );
-
-        return new Notification.Builder(
-                this,
-                NitroKillApp.SPEED_CHANNEL_ID
-        )
-                .setSmallIcon(icon)
-                .setContentTitle(
-                        getString(
-                                R.string.notification_title
-                        )
-                )
-                .setContentText(
-                        speedText
-                )
-                .setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .setContentIntent(
-                        contentIntent
-                )
-                .build();
-    }
-}
-
-السطر الحاسم للمشكلة هو:
-
-.setSmallIcon(icon)
-
-لأن "icon" هنا يتم تمريره كـ Small Icon للإشعار، وبعدها Android هو الذي يحدد حجم عرضه في شريط الحالة.
-
-لذلك لا أريد أن نعود لتغيير "SIZE = 512" مرة أخرى. الحل التالي يجب أن يستهدف طريقة تكوين الـSmall Icon نفسها.
+            }
