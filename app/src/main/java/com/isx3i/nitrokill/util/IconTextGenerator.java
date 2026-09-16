@@ -11,17 +11,27 @@ import java.util.Locale;
 
 public final class IconTextGenerator {
 
-    private static final int SIZE = 128;
+    /*
+     * حجم المؤشر
+     * أكبر قليلًا من النسخة السابقة
+     */
+    private static final int SIZE = 140;
 
-    // التمديد الرأسي: 30%
+    /*
+     * التمديد الرأسي
+     */
     private static final float VERTICAL_SCALE = 1.30f;
 
-    // التنحيف الأفقي: 25%
+    /*
+     * التنحيف الأفقي
+     */
     private static final float HORIZONTAL_SCALE = 0.75f;
 
-    // سماوي نيون
+    /*
+     * اللون البرتقالي
+     */
     private static final int INDICATOR_COLOR =
-            Color.rgb(0, 220, 255);
+            Color.rgb(255, 145, 0);
 
     private IconTextGenerator() {
     }
@@ -36,18 +46,25 @@ public final class IconTextGenerator {
         double kbps = bytesPerSecond / 1024.0;
 
         if (kbps < 1.0) {
+
             return new String[]{
                     "0",
                     "KB/s"
             };
 
         } else if (kbps < 1000.0) {
+
             return new String[]{
-                    String.format(Locale.US, "%.0f", kbps),
+                    String.format(
+                            Locale.US,
+                            "%.0f",
+                            kbps
+                    ),
                     "KB/s"
             };
 
         } else {
+
             return new String[]{
                     String.format(
                             Locale.US,
@@ -88,16 +105,27 @@ public final class IconTextGenerator {
                 )
         );
 
-        numberPaint.setTextAlign(Paint.Align.CENTER);
+        numberPaint.setTextAlign(
+                Paint.Align.CENTER
+        );
 
         if (value.length() <= 2) {
-            numberPaint.setTextSize(SIZE * 0.68f);
+
+            numberPaint.setTextSize(
+                    SIZE * 0.68f
+            );
 
         } else if (value.length() == 3) {
-            numberPaint.setTextSize(SIZE * 0.57f);
+
+            numberPaint.setTextSize(
+                    SIZE * 0.57f
+            );
 
         } else {
-            numberPaint.setTextSize(SIZE * 0.47f);
+
+            numberPaint.setTextSize(
+                    SIZE * 0.47f
+            );
         }
 
         // =========================
@@ -116,9 +144,13 @@ public final class IconTextGenerator {
                 )
         );
 
-        unitPaint.setTextAlign(Paint.Align.CENTER);
+        unitPaint.setTextAlign(
+                Paint.Align.CENTER
+        );
 
-        unitPaint.setTextSize(SIZE * 0.34f);
+        unitPaint.setTextSize(
+                SIZE * 0.34f
+        );
 
         // =========================
         // موضع الرقم
@@ -191,3 +223,5 @@ public final class IconTextGenerator {
         return Icon.createWithBitmap(bitmap);
     }
 }
+
+النتيجة: المؤشر سيكون أكبر قليلًا، لكن الأرقام لن تصبح أعرض؛ ستظل مضغوطة أفقيًا "0.75×" وطويلة رأسيًا "1.30×"، واللون سيكون برتقاليًا.
