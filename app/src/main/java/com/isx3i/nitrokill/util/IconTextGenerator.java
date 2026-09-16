@@ -12,31 +12,31 @@ import java.util.Locale;
 public final class IconTextGenerator {
 
     /*
-     * حجم الأيقونة الأساسي.
+     * حجم الأيقونة — تكبير مرتفع
      */
-    private static final int SIZE = 140;
+    private static final int SIZE = 180;
 
     /*
-     * التمديد الرأسي.
+     * تمديد الرقم رأسيًا
      */
     private static final float VERTICAL_SCALE = 1.30f;
 
     /*
-     * التنحيف الأفقي.
+     * تنحيف النص أفقيًا
      */
-    private static final float HORIZONTAL_SCALE = 0.75f;
+    private static final float HORIZONTAL_SCALE = 0.72f;
 
     /*
-     * اللون البرتقالي.
+     * اللون الأبيض
      */
     private static final int INDICATOR_COLOR =
-            Color.rgb(255, 145, 0);
+            Color.WHITE;
 
     /*
-     * هامش أمان داخل الأيقونة.
+     * هامش أمان داخل الأيقونة
      */
     private static final float SAFE_MARGIN =
-            SIZE * 0.05f;
+            SIZE * 0.04f;
 
     private IconTextGenerator() {
     }
@@ -54,6 +54,12 @@ public final class IconTextGenerator {
 
     /*
      * تحويل السرعة إلى قيمة مختصرة.
+     *
+     * أقل من 1000 KB/s:
+     * 500 KB/s
+     *
+     * فوق 1000 KB/s:
+     * 1.5 MB/s
      */
     private static String[] shortLabel(
             long bytesPerSecond
@@ -110,7 +116,7 @@ public final class IconTextGenerator {
 
         /*
          * =================================
-         * إعداد الرقم
+         * Paint الرقم
          * =================================
          */
         Paint numberPaint =
@@ -118,7 +124,7 @@ public final class IconTextGenerator {
 
         /*
          * =================================
-         * إعداد الوحدة
+         * Paint الوحدة
          * =================================
          */
         Paint unitPaint =
@@ -126,25 +132,20 @@ public final class IconTextGenerator {
 
         /*
          * =================================
-         * المساحة المتاحة
+         * تقسيم الأيقونة
          * =================================
          *
-         * نقسم الأيقونة إلى منطقتين:
-         *
-         * الرقم:
-         * الجزء العلوي.
-         *
-         * الوحدة:
-         * الجزء السفلي.
+         * الرقم يأخذ الجزء الأكبر.
+         * الوحدة بحجم متوسط في الأسفل.
          */
         float numberTop =
                 SAFE_MARGIN;
 
         float numberBottom =
-                SIZE * 0.64f;
+                SIZE * 0.67f;
 
         float unitTop =
-                SIZE * 0.67f;
+                SIZE * 0.70f;
 
         float unitBottom =
                 SIZE - SAFE_MARGIN;
@@ -153,14 +154,6 @@ public final class IconTextGenerator {
          * =================================
          * حساب حجم الرقم تلقائيًا
          * =================================
-         *
-         * الحجم يتغير حسب:
-         *
-         * 1. طول الرقم.
-         * 2. عرض الأيقونة.
-         * 3. الارتفاع المتاح.
-         * 4. التمديد الرأسي.
-         * 5. التنحيف الأفقي.
          */
         float numberSize =
                 calculateTextSize(
@@ -177,8 +170,10 @@ public final class IconTextGenerator {
 
         /*
          * =================================
-         * حساب حجم الوحدة تلقائيًا
+         * حساب حجم الوحدة
          * =================================
+         *
+         * حجم متوسط، وليس بحجم الرقم.
          */
         float unitSize =
                 calculateTextSize(
@@ -254,13 +249,17 @@ public final class IconTextGenerator {
 
         /*
          * =================================
-         * رسم الوحدة
+         * رسم الوحدة KB/s أو MB/s
          * =================================
          */
         canvas.save();
 
+        /*
+         * الوحدة أنحف قليلًا،
+         * لكن حجمها متوسط وواضح.
+         */
         canvas.scale(
-                HORIZONTAL_SCALE,
+                0.80f,
                 VERTICAL_SCALE,
                 SIZE / 2f,
                 unitY
@@ -281,7 +280,9 @@ public final class IconTextGenerator {
     }
 
     /*
-     * إنشاء Paint موحد.
+     * =================================
+     * إنشاء Paint
+     * =================================
      */
     private static Paint createPaint() {
 
@@ -289,7 +290,7 @@ public final class IconTextGenerator {
                 new Paint(
                         Paint.ANTI_ALIAS_FLAG
                                 | Paint.SUBPIXEL_TEXT_FLAG
-                );
+        );
 
         paint.setColor(
                 INDICATOR_COLOR
@@ -308,16 +309,18 @@ public final class IconTextGenerator {
 
         paint.setLinearText(true);
 
+        /*
+         * تحسين وضوح الحواف.
+         */
+        paint.setDither(true);
+
         return paint;
     }
 
     /*
-     * =====================================
+     * =================================
      * حساب حجم النص بشكل متجاوب
-     * =====================================
-     *
-     * نبدأ بحجم كبير ثم نصغره تدريجيًا
-     * حتى يدخل النص بالكامل داخل المساحة.
+     * =================================
      */
     private static float calculateTextSize(
             String text,
@@ -328,12 +331,12 @@ public final class IconTextGenerator {
     ) {
 
         /*
-         * الحجم الابتدائي.
+         * الرقم يبدأ بحجم كبير جدًا.
          */
         float maxSize =
                 isNumber
-                        ? SIZE * 0.75f
-                        : SIZE * 0.40f;
+                        ? SIZE * 0.82f
+                        : SIZE * 0.32f;
 
         /*
          * الحد الأدنى.
@@ -341,29 +344,23 @@ public final class IconTextGenerator {
         float minSize =
                 isNumber
                         ? SIZE * 0.25f
-                        : SIZE * 0.18f;
+                        : SIZE * 0.14f;
 
         /*
-         * المساحة الرأسية المتاحة
-         * قبل التمديد.
+         * الارتفاع المتاح.
          */
         float availableHeight =
                 bottom - top;
 
         /*
-         * لأن النص سيتم تمديده رأسيًا،
-         * نحتاج إلى أخذ VERTICAL_SCALE
-         * في الحسبان.
+         * الارتفاع الفعلي قبل التمديد.
          */
         float maximumHeight =
                 availableHeight
                         / VERTICAL_SCALE;
 
         /*
-         * الحد الأقصى للعرض.
-         *
-         * التنحيف الأفقي 0.75 يجعل
-         * النص النهائي أضيق.
+         * العرض المتاح.
          */
         float maximumWidth =
                 (SIZE - SAFE_MARGIN * 2f)
@@ -373,8 +370,8 @@ public final class IconTextGenerator {
                 maxSize;
 
         /*
-         * تقليل الحجم حتى يدخل
-         * النص داخل الحدود.
+         * تصغير تدريجي حتى يدخل
+         * النص بالكامل داخل الأيقونة.
          */
         while (size > minSize) {
 
@@ -405,9 +402,6 @@ public final class IconTextGenerator {
             size -= 1f;
         }
 
-        /*
-         * حماية إضافية.
-         */
         if (size < minSize) {
             size = minSize;
         }
