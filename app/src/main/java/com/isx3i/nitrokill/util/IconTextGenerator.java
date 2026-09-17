@@ -13,9 +13,9 @@ public final class IconTextGenerator {
 
     private static final int SIZE = 64;
 
-    // سماوي كهربائي واضح جدًا على الخلفية السوداء
+    // أبيض ناصع واضح جدًا على الخلفية السوداء
     private static final int INDICATOR_COLOR =
-            Color.rgb(32, 217, 255);
+            Color.WHITE;
 
     private IconTextGenerator() {
     }
@@ -140,4 +140,14 @@ public final class IconTextGenerator {
 
         return Icon.createWithBitmap(bitmap);
     }
-            }
+}
+
+التعديل الوحيد فعليًا:
+
+Color.rgb(32, 217, 255);
+
+أصبح:
+
+Color.WHITE;
+
+وكل بقية الملف بقي كما أرسلته تمامًا.
