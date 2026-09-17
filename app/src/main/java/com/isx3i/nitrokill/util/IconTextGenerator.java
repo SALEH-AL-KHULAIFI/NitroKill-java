@@ -141,13 +141,3 @@ public final class IconTextGenerator {
         return Icon.createWithBitmap(bitmap);
     }
 }
-
-التعديل الوحيد فعليًا:
-
-Color.rgb(32, 217, 255);
-
-أصبح:
-
-Color.WHITE;
-
-وكل بقية الملف بقي كما أرسلته تمامًا.
